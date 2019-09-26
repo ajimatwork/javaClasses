@@ -1,0 +1,176 @@
+' Create Object for Excel sheet
+
+Set ObjExcel=CreateObject("Excel.Application")
+Set ObjWB=ObjExcel.Workbooks.Open("C:\Program Files\HP\QuickTest Professional\Tests\Class_lecture\Gmail_highBridge_frameWork\gmail_test_data.xls")
+Set ObjWS_TC=ObjWB.Worksheets("TestCases")
+Set ObjWS_TS=ObjWB.Worksheets("TestSteps")
+rcnt_TC=ObjWS_TC.usedrange.rows.count
+rcnt_TS=ObjWS_TS.usedrange.rows.count
+
+
+For i=2 to rcnt_TC
+	If ObjWS_TC.cells(i,"D")="Y" Then
+		 For j=2 to rcnt_TS
+			 If ObjWS_TC.Cells(i,"B")=ObjWS_TS.Cells(j,"A") Then
+				 Kf=ObjWS_TS.Cells(j,"D")
+				 id1=ObjWS_TS.Cells(j,"E")
+				 id2=ObjWS_TS.Cells(j,"F")
+
+				Select Case Kf
+				 Case "Browser_Launch"
+                     Browser_Launch id1,id2
+				 Case "FnWebEdit_set "
+                     FnWebEdit_set wBroser,wPage,id1,id2
+				 Case "FnWebButton_Click"
+					 FnWebButton_Click wBroser,wPage,id1
+					 If Browser("micclass:=Browser").Dialog("micclass:=Dialog","text:=Security Alert").Exist Then
+						 Browser("micclass:=Browser").Dialog("micclass:=Dialog","text:=Security Alert").WinButton("micclass:=WinButton","text:=&Yes").Click
+						 End If
+            	Case "FnLink_Validate"
+                   FnLink_Validate wBroser,wPage,id1
+				Case "FnLink_Click"
+                 FnLink_Click  wBroser,wPage,id1
+				 Case "Browser_close"
+                     Browser_close
+                End Select
+			 End If
+
+		 Next
+	End If
+
+Next
+ObjWB.Close
+ObjExcel.Quit
+Set ObjWB=Nothing
+Set ObjWB_TC=Nothing
+Set ObjWB_TS=Nothing
+Set ObjExcel=Nothing
+
+'######################################Function Library##########################
+
+'Function Browser_Launch(BrowserName,ApplicationURL)
+'   Select Case BrowserName
+'     Case "IE"
+'     Systemutil.Run"iexplore.exe",ApplicationURL
+'     Case "Firefox"
+'     Systemutil.Run"firefox.exe",ApplicationURL
+'   End Select
+'End Function
+'
+'
+'Function FnWebEdit_set(wBrowser,wPage,WebEditname,v_WebEdit)
+'   Set wBrowser=Description.Create()
+'   wBrowser("micclass").Value="Browser"
+'   Set wPage=Description.Create()
+'   wPage("micclass").Value="Page"
+'   Set wWebEdit=Description.Create()
+'   wWebEdit("micclass").value="WebEdit"
+'   Set cWebEdits=Browser(wBrowser).Page(wPage).ChildObjects(wWebEdit)
+'   WebEditcount=cWebEdits.count
+'   For i=0 to WebEditcount-1
+'	   If cWebEdits(i).GetROProperty("name")=WebEditname Then
+'		   cWebEdits(i).set v_WebEdit
+'		   Exit for
+'
+'	   End If
+'
+'   Next
+'   End Function
+'
+'   Function FnWebButton_Click(wBrowser,wPage,WebButtonname)
+'   Set wBrowser=Description.Create()
+'   wBrowser("micclass").Value="Browser"
+'   Set wPage=Description.Create()
+'   wPage("micclass").Value="Page"
+'   Set wWebButton=Description.Create()
+'   wWebButton("micclass").value="WebButton"
+'   Set cWebButtons=Browser(wBrowser).Page(wPage).ChildObjects(wWebButton)
+'   WebButtoncount=cWebButtons.count
+'   For i=0 to WebButtoncount-1
+'	   If cWebButtons(i).GetROProperty("name")=WebButtonname Then
+'		   cWebButtons(i).Click
+'		   Exit for
+'
+'	   End If
+'
+'   Next
+'
+'
+'End Function
+'
+'Function FnLink_Click(wBrowser,wPage,Linkname)
+'   Set wBrowser=Description.Create()
+'   wBrowser("micclass").Value="Browser"
+'   Set wPage=Description.Create()
+'   wPage("micclass").Value="Page"
+'   Set wLink=Description.Create()
+'   wLink("micclass").value="Link"
+'   Set cLinks=Browser(wBrowser).Page(wPage).ChildObjects(wLink)
+'   Linkcount=cLinks.count
+'   For i=0 to Linkcount-1
+'	   If cLinks(i).GetROProperty("name")=Linkname Then
+'		   cLinks(i).Click
+'		   Exit for
+'
+'	   End If
+'
+'   Next
+'
+'
+'End Function
+'
+'Function FnLink_Validate (wBrowser,wPage,Linkname)
+' Set wBrowser=Description.Create()
+'   wBrowser("micclass").Value="Browser"
+'   Set wPage=Description.Create()
+'   wPage("micclass").Value="Page"
+'   Set wLink=Description.Create()
+'   wLink("micclass").value="Link"
+'   Set cLinks=Browser(wBrowser).Page(wPage).ChildObjects(wLink)
+'   Linkcount=cLinks.count
+'   For i=0 to Linkcount-1
+'	   If cLinks(i).GetROProperty("name")=Linkname Then
+'		FnLink_Validate=True
+'                 Else
+'		FnLink_Validate=False
+'		   Exit for
+'
+'	   End If
+'
+'   Next
+'
+'
+'End Function
+'
+'
+'
+'Function Browser_close()
+'   Set wBrowser=Description.Create()
+'   wBrowser("micclass").Value="Browser"
+'   Browser(wBrowser).Close
+'End Function
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
+
+
+
+
+
+
+
+
+
+
+
+
+

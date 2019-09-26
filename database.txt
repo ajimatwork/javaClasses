@@ -1,0 +1,132 @@
+package com.uiautomator.peppermill;
+import java.io.*;
+import java.sql.*;
+
+public class PeppermillDatabase {
+    public PeppermillReporter reporter;
+    public PeppermillExcel excel;
+    public Connection conn;
+    public Statement st;
+    public ResultSet rs;
+    
+        public void setDBConnection (String dbType, String dbURL, String userName, String password) throws
+        ClassNotFoundException, SQLException {
+            try {
+                switch (dbType.trim().toLowerCase()) {
+                    case "oracle":
+                        conn = DriverManager.getConnection("jdbc:oracle.driver.OracleDriver" + ", " + dbURL,
+                                userName, password);
+                        break;
+                    case "sybass":
+                        System.out.println("I M the code for Sybass DB.!");
+                        break;
+                }
+                reporter.Event("PASS", "Connect to DB", "Established connection to DataBase");
+                st = conn.createStatement();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        public void createDBTable (String tabelName, String columName,int fieldSpace) throws SQLException {
+            try {
+                st.executeQuery("CREATE TABLE " + tabelName + " (" + columName + " Varchar (" + fieldSpace + ") NOT NULL)");
+                reporter.Event("PASS", "Create Table", tabelName + ": Table has been Created");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void executeDDLQuery (String sqlQuery) throws SQLException {
+            try {
+                st.executeQuery(sqlQuery);
+                reporter.Event("PASS", "Execute Query", "SQL Query Executed Successfully");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void executeDQLQuery (String sqlQuery,int dbColumIndex) throws SQLException {
+            try {
+                st.executeQuery(sqlQuery);
+                while (rs.next()) {
+                    String result = rs.getString(dbColumIndex);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void insertExcelDataToDB (String excelPath, String sheetName, String columName, String
+        dbColumnName, String dbTableName) throws IOException, ClassNotFoundException, SQLException {
+            excel.loadDataSheet(excelPath, sheetName);
+            int rc = excel.GetRowCount();
+            for (int i = 1; i <= rc; i++) {//Read column number 1; index start from 0;
+                excel.setCurrentRow(i);
+                String colValue = excel.GetValue(columName);
+                st.executeQuery("INSERT INTO " + dbTableName + " " + dbColumnName + " VALUES " + colValue);
+            }
+            reporter.Event("PASSED", "Insert data from Excel to DB", "Excel Data has been Inserted to" + dbTableName);
+        }
+
+        public void createDBTableFromExcelData (String excelPath, String sheetName, String columnName) throws
+        IOException, ClassNotFoundException, SQLException {
+            excel.loadDataSheet(excelPath, sheetName);
+            int rc = excel.GetRowCount();
+            for (int i = 1; i <= rc; i++) {//Read column number 1; index start from 0;
+                excel.setCurrentRow(i);
+                String colValue = excel.GetValue(columnName);
+                st.executeQuery(colValue);
+                reporter.Event("PASSED", "Create table for Excel Query", i + ": Table has been created in DB");
+            }
+        }
+
+        public void dropDBTableFromExcelData (String excelPath, String sheetName, String columnName) throws
+        IOException, ClassNotFoundException, SQLException {
+            excel.loadDataSheet(excelPath, sheetName);
+            int rc = excel.GetRowCount();
+            for (int i = 1; i <= rc; i++) {//Read column number 1; index start from 0;
+                excel.setCurrentRow(i);
+                String colValue = excel.GetValue(columnName);
+                st.executeQuery("DROP TABLE " + colValue);
+                reporter.Event("PASSED", "Create table for Excel Query", i + ": Table has been Dropped form DB");
+            }
+        }
+
+        public void displayReturnResultInText ( int dbColumnIndex, String sqlQuery, String resultPath, String reportName) throws
+        SQLException, IOException {
+            FileWriter file = new FileWriter(resultPath + reportName + "-TestResult" + ".txt");
+            PrintWriter pw = new PrintWriter(file);
+            ResultSet rs = st.executeQuery(sqlQuery);
+            String result = null;
+            while (rs.next()) {
+                pw.println(rs.getString(dbColumnIndex));
+                result = rs.getString(dbColumnIndex);
+            }
+            if (result == null) {
+                pw.println(reportName + " Report: Testing has PASSED, No Mismatched Found..!");
+            }
+            if (result != null) {
+                pw.println("=========================================================================================");
+                pw.println(reportName + " Report: Testing has FAILED: Oops above Data Could Not Found/Mismatched between Report and DWH..!");
+            }
+            pw.close();
+        }
+
+        public void closeDBConnection () throws SQLException {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            reporter.Event("PASS", "Close DB Connection", "DB connection closed Successfully");
+        }
+    }

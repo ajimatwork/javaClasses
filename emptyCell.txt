@@ -1,0 +1,65 @@
+ public void drop(String excelPath, int columnIndex) throws IOException, ClassNotFoundException, SQLException {
+        file = new FileInputStream(new File(excelPath));
+        workbook = new XSSFWorkbook(file);
+        workbook.setMissingCellPolicy(Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+        DataFormatter fmt = new DataFormatter();
+        for (int sn = 0; sn < workbook.getNumberOfSheets(); sn++) {
+            sheet = workbook.getSheetAt(sn);
+            System.out.println("Total row=" + sheet.getLastRowNum());
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) {
+                    // There is no data in this row, handle as needed
+                    System.out.println("nulllllllllllllll");
+                } else {
+//                     Row "rn" has data
+                    //==========FIRST OPTION=================================
+                    if (row.getCell(columnIndex).getCellType() == CellType.STRING) {
+                        st.executeQuery("DROP TABLE " + ((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+                        System.out.println("Table: " + i + "- Dropped(0)");
+                        System.out.println(((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+                    } else if (row.getCell(columnIndex).getCellType() == CellType.NUMERIC) {
+                        System.out.println(((XSSFRow) row).getCell(columnIndex).getNumericCellValue());
+                    } else if (row.getCell(columnIndex).getCellType() == CellType.BOOLEAN) {
+                        System.out.println(((XSSFRow) row).getCell(columnIndex).getBooleanCellValue());
+                    } else if (row.getCell(columnIndex).getCellType() == CellType.BLANK) {
+                        System.out.println("NKKKKKKKKKKKKKKK");
+                        System.out.println(((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+                    } else if (row.getCell(columnIndex).getCellType() == CellType._NONE) {
+                        System.out.println("noew");
+                    }
+                }
+                //2nd Option 
+//                    switch (row.getCell(columnIndex).getCellType()) {
+//                        case STRING:
+//                            System.out.println("I M Sting");
+//                            System.out.println(((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+//                            // st.executeQuery("DROP TABLE " + ((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+//                            break;
+//                        case NUMERIC:
+//                            System.out.println("I M Numeric");
+//                            System.out.println(((XSSFRow) row).getCell(columnIndex).getNumericCellValue());
+//                            // st.executeQuery("DROP TABLE " + ((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+//                            break;
+//                        case _NONE:
+//                            System.out.println("I M None");
+//                            System.out.println(((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+//                            break;
+//                        case BLANK:
+//                            System.out.println("I M Blank");
+//                            break;
+//                        case ERROR:
+//                            System.out.println("I M Error");
+//                            break;
+//                        case BOOLEAN:
+//                            System.out.println("I M Boolean");
+//                            //st.executeQuery("DROP TABLE " + ((XSSFRow) row).getCell(columnIndex).getStringCellValue());
+//                            break;
+//                        case FORMULA:
+//                            System.out.println("I M Formula");
+//                            break;
+//                    }
+            }
+            file.close();
+        }
+    }
